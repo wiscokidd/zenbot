@@ -5,7 +5,10 @@
 > “To follow the path, look to the master, follow the master, walk with the master, see through the master, become the master.”
 > – Zen Proverb
 
+**Notice: See the new sticky post: [Poll: What do you want to see in Zenbot 3.6?](https://github.com/carlos8f/zenbot/issues/41)**
+
 - New to Zenbot? Watch the slideshow: [Introducing Zenbot 3](https://gitpitch.com/carlos8f/zenbot/master?t=moon)
+- Join Zenbot [Discord Channel](https://discord.gg/7SVQzGu)
 - Follow Zenbot [on Twitter!](https://twitter.com/zenbot_btc)
 - Check out Zenbot's [live feed!](https://zenbot.s8f.org/)
 - Join the discussion on [Reddit!](https://www.reddit.com/r/Bitcoin/comments/4xqo8q/announcing_zenbot_3_your_new_btcethltc_trading/)!
@@ -25,7 +28,7 @@ Zenbot is a lightweight, extendable, artificially intelligent trading bot. Curre
 
 ### Performance
 
-Current simulations on historical data from May - August 2016 show Zenbot 3.4.1 making a [1.827 ROI](https://gist.github.com/carlos8f/38a9dd292c7ce4d4425803e9548f7960) in only 3 months, using default parameters!
+Current simulations on historical data from May - August 2016 show Zenbot 3.5.15 making a [1.531 ROI](https://gist.github.com/carlos8f/afcc18ba0e1f422b1f3b1f67a3b05c8e) in only 3 months, using default parameters!
 
 _Zenbot is a genius!_
 
@@ -43,11 +46,11 @@ HOWEVER. BE AWARE that once you hook up Zenbot to a live exchange, the damage do
 
 ## Screenshot
 
-In the screenshot below, the pink arrows represent the bot buying (up arrow) and selling (down arrow) as it iterated the historical data of [GDAX](https://gdax.com/) exchange's BTC/USD product. The simulation iterated 3 months of data and ended with 182% balance, an unbelieveable 82% [ROI](https://en.wikipedia.org/wiki/Return_on_investment).
+In the screenshot below, the pink arrows represent the bot buying (up arrow) and selling (down arrow) as it iterated the historical data of [GDAX](https://gdax.com/) exchange's BTC/USD product.
 
-![screenshot](https://cloud.githubusercontent.com/assets/106763/17872578/8f13af10-6875-11e6-8284-d6863f9a1e1e.png)
+![screenshot](https://cloud.githubusercontent.com/assets/106763/18077269/4f5deefc-6e39-11e6-9e3e-6d4bba583c03.png)
 
-RAW data from simulation: https://gist.github.com/carlos8f/38a9dd292c7ce4d4425803e9548f7960
+RAW data from simulation: https://gist.github.com/carlos8f/afcc18ba0e1f422b1f3b1f67a3b05c8e
 
 ## Quick-start
 
@@ -55,7 +58,7 @@ RAW data from simulation: https://gist.github.com/carlos8f/38a9dd292c7ce4d442580
 
 #### Windows - I don't support it.
 
-If you're having an error on Windows and you're about to give up, it's probably because Node.js is generally broken on Windows and you should try running on a Linux docker container or a Mac instead.
+If you're having an error on Windows and you're about to give up, it's probably because Node.js is generally broken on Windows and you should try running on a Linux docker container (look at step 7 and follow instructions for Windows) or a Mac instead.
 
 If you're still insistent on using Windows, you'll have to fork zenbot, fix it yourself, and I'll accept a Pull Request.
 
@@ -65,17 +68,71 @@ If you're still insistent on using Windows, you'll have to fork zenbot, fix it y
 git clone https://github.com/carlos8f/zenbot.git
 cd zenbot
 npm install
+# optional, installs the `zenbot` binary in /usr/local/bin:
+npm link
 ```
 
-### 3. Edit `config.js` with API keys, database credentials, trade logic, etc.
+(optional) Install historical data for GDAX BTC/USD, ETH/BTC, and ETH/USD. **This may overwrite data in your existing `ticks` collection, so be careful!**
 
-### 4. Run zenbot:
+```
+wget https://s8f.org/dl/zenbrain.tar.gz
+tar -xf zenbrain.tar.gz
+mongorestore
+```
+
+### 3. Copy `config_sample.js` to `config.js` and edit with API keys, database credentials, trade logic, etc.
+
+Note: add your GDAX key to `config.js` to enable real trading.
+
+### 4. Run zenbot (single-pair mode)
+
+The following command will run all Zenbot functionality, using the default BTC/USD pair.
 
 ```
 ./run.sh
 ```
 
-### 5. Open the live graph URL provided in the console.
+Here's how to run a different pair (example: ETH-BTC):
+
+```
+./zenbot launch map --backfill reduce run server --config config_eth_btc.js
+```
+
+### 4. Run zenbot (multi-pair mode)
+
+The following will run multiple currency pairs along with the reducer and server in separate processes.
+
+Required: reducer (for processing trade data):
+
+```
+./reducer.sh
+```
+
+Optional: server (for candlestick graphs and aggregated log):
+
+```
+./server.sh
+```
+
+Required: one or more run scripts (watches trades of a given pair and performs trade actions on the exchange or simulation)
+
+```
+./run-btc-usd.sh
+```
+
+And/or to trade ETH,
+
+```
+./run-eth-usd.sh
+```
+
+And/or to trade ETH/BTC,
+
+```
+./run-eth-btc.sh
+```
+
+### 5. If running server, open the live graph URL provided in the console.
 
 To access the CLI,
 
@@ -104,7 +161,7 @@ The `./run.sh` script combines `launch map --backfill reduce run server`, so use
 
 ### 6. Simulation
 
-Once backfill has finished, run a simulation:
+Once backfill has finished (should collect about 84 days of data), run a simulation:
 
 ```
 ./zenbot sim [--verbose]
@@ -112,26 +169,38 @@ Once backfill has finished, run a simulation:
 
 Zenbot will return you a list of virtual trades, and an ROI figure. Open the URL provided in the console (while running the server) to see the virtual trades plotted on a candlestick graph. Tweak `default_logic.js` for new trade strategies and check your results this way.
 
-Example simulation result: https://gist.github.com/carlos8f/38a9dd292c7ce4d4425803e9548f7960
+Example simulation result: https://gist.github.com/carlos8f/afcc18ba0e1f422b1f3b1f67a3b05c8e
 
 #### About the default trade logic in `default_logic.js`
 
 - uses [GDAX](https://gdax.com/) API
-- watches BTC/USD
-- acts at 1m increments (ticks), but you can configure to act quicker or slower.
-- computes the latest 14-hour [RSI](http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi)
+- acts at 5 minute increments (ticks), but you can configure to act quicker or slower.
+- computes the latest 14-hour [RSI](http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi) at each 5m tick
 - considers `RSI >= 70` an upwards trend and `RSI <= 30` a downwards trend
 - Buys at the beginning of upwards trend, sells at the beginning of downwards trend
-- trades 95% of current balance, market price
-- Holds for min. 100 minutes after a trade
+- trades 98% of current balance, market price
+- Holds for min. 24 hours after a trade
 
-You can tweak the JS from there to use bitfinex, or trade ETH, or whatever. After tweaking `default_logic.js`, Use `./zenbot sim` to check your strategy against historical trades.
+You can tweak the JS from there to trade on Bitfinex, or whatever. After tweaking `default_logic.js`, Use `./zenbot sim [--verbose]` to check your strategy against historical trades.
 
 Note that simulations always end on Wednesday 5pm PST, and run for a max 84 days (12 weeks), to ensure input consistency.
 
 Auto-learn support and more exchange support will come soon. Will accept PR's :) With the 3.x plugin architecture, external plugins are possible too (published as their own repo/module).
 
-### 7. Web console
+### 7. Docker
+
+Install Docker, Docker Compose, Docker Machine (if necessary) You can follow instructions at https://docs.docker.com/compose/install/
+
+After installation
+
+```
+git clone https://github.com/carlos8f/zenbot.git
+cd zenbot
+docker-compose build
+docker-compose up (-d if you don't want to see the log)
+```
+
+### 8. Web console
 
 When the server is running, and you have visited the `?secret` URL provided in the console, you can access an aggregated, live feed of log messages at `http://localhost:3013/logs`. Example:
 
@@ -139,13 +208,56 @@ When the server is running, and you have visited the `?secret` URL provided in t
 
 ### Update Log
 
-- [**3.4.2**](https://github.com/carlos8f/zenbot/releases/tag/v3.4.2) (Latest)
+- [**3.5.16**](https://github.com/carlos8f/zenbot/releases/tag/v3.5.15) (Latest)
+    - Added Docker support, thanks to @egorbenko, @grigio, and @BarnumD !
+- **3.5.15**
+    - Fixed [RSI smoothing issue](https://github.com/carlos8f/zenbot/issues/53), now RSI is calculated on the run_state instead of the tick. Switched to using heavily smoothed 5m RSI in `default_logic.js`. RSI no longer needs to be backfilled, and is dynamically calculated after applying this update. Raised ROI 1.460 -> 1.531 from last update.
+- **3.5.14**
+    - Fixed [#39](https://github.com/carlos8f/zenbot/issues/39) 404 for trades.csv
+- **3.5.13**
+    - Change `check_period` to 5m in trading engine
+    - ROI 1.477 -> 1.720
+    - Speed up sim by only processing 5m ticks
+- **3.5.12**
+    - Tweaks to default trade params, ROI = 1.364 -> 1.477
+    - Misc warning text changes
+- **3.5.11**
+    - Fix 1m reporter not working in advisor mode.
+- **3.5.10**
+    - Fix `run.sh` not starting server.
+    - Remove --verbose from new run script.
+- **3.5.9**
+    - Add --backfill and --verbose to new run script.
+- **3.5.8**
+    - Fix "skipping historical tick" (prevented bot from acting on trends) issue with Zenbrain update.
+    - Fix ANSI graph range again.
+    - Added `run.sh` back to run the default pair BTC/USD and reducer/server.
+- **3.5.7**
+    - make use of rs.rsi for indicators (instead of querying for rsi tick), spacing for ETA.
+- **3.5.6**
+    - Fix ANSI graph range.
+- **3.5.5**
+    - ANSI graph now follows RSI instead of SMA.
+- **3.5.4**
+    - ETA indicator replaces progress, and removal of `hold_ticks` mechanism in favor of wait params in ms. More warnings in default_logic to show what's going on with the trader.
+- **3.5.3**
+    - Fixed `--config` usage with absolute path.
+- **3.5.2**
+    - Re-organized some config vars, GDAX key now in `config.js` instead of `config_eth_btc.js` etc.
+- **3.5.1**
+    - Bugfixes
+- **3.5.0**
+    - `run.sh` split into 3 scripts. Now you'll need to run `./reducer.sh`, `./server.sh`, and `./run-{asset}-{currency}.sh` in separate windows. Multiple currency pairs can be run in parallel as of Zenbot 3.5.0!
+- **3.4.3**
+    - Fix sim URL not having selector in it
+    - `min_trade` now controlled by `product.min_size`
+- **3.4.2**
     - Exit default logic if run command and historical tick
     - Add balance stats to trade actions
     - Add `--config` arg doc. You can switch to using a different config with `--config <path>`
     - Update gist links for newest simulation results.
     - Added `config_eth.js` example config for ETH trading.
-- [**3.4.1**](https://github.com/carlos8f/zenbot/releases/tag/v3.4.1) (Latest)
+- **3.4.1**
     - Slight re-code of `default_logic.js` to fix slipped ROI (1.1 -> 1.8)
     - Added All Poloniex USDT pairs by @JFD3D, Thanks!
 - **3.4.0**
@@ -229,6 +341,14 @@ P.S., some have asked for how to donate to Zenbot development. I accept donation
 `187rmNSkSvehgcKpBunre6a5wA5hQQop6W`
 
 ![zenbot logo](https://s8f.org/files/bitcoin.png)
+
+### Patreon
+
+Zenbot is on [Patreon!](https://patreon.com/user?u=3889129) Give some $ per month to support Zenbot 3 development.
+
+### GratiPay
+
+Zenbot is on [Grati-Pay!](https://gratipay.com/Zenbot-3/) Another way to give $ per month to support development.
 
 thanks!
 

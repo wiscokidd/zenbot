@@ -1,6 +1,6 @@
 {
   "name": "zenbot_trader",
-  "version": "3.4.1",
+  "version": "3.5.16",
   "description": "A machine-learning cryptocurrency trading bot",
   "bin": {
     "zenbot": "./zenbot"
@@ -29,7 +29,7 @@
     "sig": "^1.0.0",
     "timebucket": "^0.3.4",
     "twit": "^2.2.4",
-    "zenbrain": "git+https://github.com/carlos8f/zenbrain.git#6e38fbc558e041aae3d393f88b581b6453465d45",
+    "zenbrain": "git+https://github.com/carlos8f/zenbrain.git#bbda526bb833d9b258d8e6d187c1d5789c4cead0",
     "zero-fill": "^2.2.3"
   },
   "devDependencies": {

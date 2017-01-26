@@ -14,21 +14,12 @@ module.exports = function (c) {
   c.sma_query_limit = 20
   c.sma_periods = 10
 
-  // RSI indicator config
-  c.rsi_sizes = ['1h']
-  c.rsi_reporter_size = '1h'
-  c.rsi_query_limit = 20
-  c.rsi_periods = 14
-  c.rsi_backfill_timeout = 30000
-  c.rsi_backfill_report = false
-  c.rsi_backfill_min_report = 2
-
   c.ansi_graph_width = 20
   c.ansi_graph_decay = 0.01
 
   // reporter
   c.reporter_sizes = ['1m']
-  c.price_reporter_length = 9
+  c.price_reporter_length = 12
   c.reporter_cols = [
     "tick_id",
     "num_trades",
@@ -36,7 +27,7 @@ module.exports = function (c) {
     "rsi",
     //"volume",
     "price",
-    "progress",
+    "eta",
     //"sma",
     "balance",
     "roi"
@@ -69,7 +60,7 @@ module.exports = function (c) {
   c.lock_tries = 100
   c.passive_update_timeout = 5000
   c.return_timeout = 60000
-  c.brain_speed_ms = 200
+  c.brain_speed_ms = 5000
   c.reducer_perf_report_min = 2
   c.reducer_perf_report_timeout = 30000
   return c
